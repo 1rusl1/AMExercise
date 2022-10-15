@@ -9,6 +9,10 @@
 import Foundation
 import UIKit
 
+protocol CancellableTask {
+     func cancel()
+}
+
 class NetworkClient {
 
     enum Error: Swift.Error {
@@ -35,24 +39,26 @@ class NetworkClient {
          }.resume()
      }
 
-     func fetchImage(on urlString: String, completion: @escaping (Result<UIImage, Error>) -> Void) {
+     func fetchImage(on urlString: String, completion: @escaping (Result<UIImage, Error>) -> Void) -> CancellableTask? {
          guard let url = URL(string: urlString) else {
              completion(.failure(.general))
-             return
+             return nil
          }
 
-         urlSession.dataTask(with: url) { (jsonData, response, error) in
-             if let error = error {
-                 completion(.failure(.network(error: error, response: response)))
-             }
-
-             if let image = jsonData.flatMap(UIImage.init(data:)) {
-                 completion(.success(image))
-             } else {
-                 let decodingError = NSError(domain: "com.exercise.AM-Exercise", code: -1, userInfo: nil)
-                 completion(.failure(.parsing(error: decodingError)))
-             }
-         }.resume()
+          let task = urlSession.dataTask(with: url) { (jsonData, response, error) in
+               if let error = error {
+                    completion(.failure(.network(error: error, response: response)))
+               }
+               
+               if let image = jsonData.flatMap(UIImage.init(data:)) {
+                    completion(.success(image))
+               } else {
+                    let decodingError = NSError(domain: "com.exercise.AM-Exercise", code: -1, userInfo: nil)
+                    completion(.failure(.parsing(error: decodingError)))
+               }
+          }
+          task.resume()
+          return task
      }
 
      private func handleResponse<Type: Decodable>(
@@ -73,3 +79,5 @@ class NetworkClient {
          }
      }
 }
+
+extension URLSessionDataTask: CancellableTask { }
