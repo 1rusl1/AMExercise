@@ -23,7 +23,6 @@ final class PhotoCacheService: CacheService {
             return
         } else {
             cache.setObject(image, forKey: stringId)
-            print("id \(id) сохранено в КЭШ")
         }
     }
     

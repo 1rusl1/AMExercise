@@ -7,6 +7,7 @@
 //
 
 import Foundation
+
 struct PhotoResponse: Decodable {
     let hits: [Photo]
     let total: Int

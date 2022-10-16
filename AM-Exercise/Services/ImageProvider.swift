@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 
 final class ImageProvider {
-    
     private let cacheService = PhotoCacheService()
     
     private let networkClient = NetworkClient()
@@ -26,7 +25,6 @@ final class ImageProvider {
                 case let .success(image):
                     self?.cacheService.save(image: image, with: photo.id)
                     completion(.success(image))
-                    print("id \(photo.id) изображение из СЕТИ")
                 case let .failure(error):
                     completion(.failure(error))
                 }
@@ -34,7 +32,6 @@ final class ImageProvider {
             return task
         }
         completion(.success(cachedImage))
-        print("id \(photo.id) загружено изображение из КЭША")
         return nil
     }
 }

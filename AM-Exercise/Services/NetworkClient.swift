@@ -36,28 +36,25 @@ final class NetworkClient {
      
      func fetchImages(page: Int, perPage: Int, completion: @escaping (Result<[Photo], Error>) -> Void) {
           guard let url = createURLWithParams(page: page, perPage: perPage) else {
-          completion(.failure(.general))
-             return
-         }
-
-         urlSession.dataTask(with: url) { (jsonData, response, error) in
-             let result: Result<PhotoResponse, Error> = self.handleResponse(data: jsonData, error: error, response: response)
-             completion(result.map { $0.hits })
-
-         }.resume()
+               completion(.failure(.general))
+               return
+          }
+          urlSession.dataTask(with: url) { (jsonData, response, error) in
+               let result: Result<PhotoResponse, Error> = self.handleResponse(data: jsonData, error: error, response: response)
+               completion(result.map { $0.hits })
+               
+          }.resume()
      }
 
      func fetchImage(on urlString: String, completion: @escaping (Result<UIImage, Error>) -> Void) -> CancellableTask? {
-         guard let url = URL(string: urlString) else {
-             completion(.failure(.general))
-             return nil
-         }
-
+          guard let url = URL(string: urlString) else {
+               completion(.failure(.general))
+               return nil
+          }
           let task = urlSession.dataTask(with: url) { (jsonData, response, error) in
                if let error = error {
                     completion(.failure(.network(error: error, response: response)))
                }
-               
                if let image = jsonData.flatMap(UIImage.init(data:)) {
                     
                     completion(.success(image))
@@ -75,21 +72,23 @@ final class NetworkClient {
      }
      
      private func handleResponse<Type: Decodable>(
-         data: Data?, error: Swift.Error?, response: URLResponse?) -> Result<Type, Error> {
-         if let error = error {
-             return .failure(.network(error: error, response: response))
-         }
-
-         if let jsonData = data {
-             do {
-                 return .success(try JSONDecoder().decode(Type.self, from: jsonData))
-             } catch {
+          data: Data?,
+          error: Swift.Error?,
+          response: URLResponse?
+     ) -> Result<Type, Error> {
+          if let error = error {
+               return .failure(.network(error: error, response: response))
+          }
+          if let jsonData = data {
+               do {
+                    return .success(try JSONDecoder().decode(Type.self, from: jsonData))
+               } catch {
                     print("Error info: \(error)")
-                 return .failure(.parsing(error: error))
-             }
-         } else {
-             return .failure(.invalid(response: response))
-         }
+                    return .failure(.parsing(error: error))
+               }
+          } else {
+               return .failure(.invalid(response: response))
+          }
      }
 }
 
