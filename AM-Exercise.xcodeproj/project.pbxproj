@@ -125,18 +125,10 @@
 		D2BBCAAA28FC707B002B5179 /* Photo */ = {
 			isa = PBXGroup;
 			children = (
-				D2BBCAAB28FC7094002B5179 /* Models */,
 				27D56EBE26A6F3E90076B828 /* PhotoViewController.swift */,
 				275AA55D26A7070D008B8877 /* PhotoCell.swift */,
 			);
 			path = Photo;
-			sourceTree = "<group>";
-		};
-		D2BBCAAB28FC7094002B5179 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
