@@ -13,21 +13,29 @@ protocol CancellableTask {
      func cancel()
 }
 
-class NetworkClient {
+extension NetworkClient {
+     enum Error: Swift.Error {
+         case general
+         case invalid(response: URLResponse?)
+         case network(error: Swift.Error, response: URLResponse?)
+         case parsing(error: Swift.Error)
+     }
+}
 
-    enum Error: Swift.Error {
-        case general
-        case invalid(response: URLResponse?)
-        case network(error: Swift.Error, response: URLResponse?)
-        case parsing(error: Swift.Error)
-    }
+enum PhotoRequestParameters: String {
+     case key
+     case imageType = "image_type"
+     case page
+     case perPage = "per_page"
+}
 
+final class NetworkClient {
      private let urlSession = URLSession.shared
      private let apiKey = "22577733-edb14e0d0f3f9c1a039c57e48"
      private let baseURL = "https://pixabay.com/api/"
-
-     func fetchImages(for query: String, completion: @escaping (Result<[Photo], Error>) -> Void) {
-         guard let url = URL(string: "\(baseURL)?key=\(apiKey)&q=\(query)&image_type=photo") else {
+     
+     func fetchImages(page: Int, perPage: Int, completion: @escaping (Result<[Photo], Error>) -> Void) {
+          guard let url = createURLWithParams(page: page, perPage: perPage) else {
           completion(.failure(.general))
              return
          }
@@ -51,6 +59,7 @@ class NetworkClient {
                }
                
                if let image = jsonData.flatMap(UIImage.init(data:)) {
+                    
                     completion(.success(image))
                } else {
                     let decodingError = NSError(domain: "com.exercise.AM-Exercise", code: -1, userInfo: nil)
@@ -60,7 +69,11 @@ class NetworkClient {
           task.resume()
           return task
      }
-
+     
+     private func createURLWithParams(page: Int, perPage: Int) -> URL? {
+          return URL(string: "\(baseURL)?key=\(apiKey)&image_type=photo&\(PhotoRequestParameters.page.rawValue)=\(page)&\(PhotoRequestParameters.perPage.rawValue)=\(perPage)")
+     }
+     
      private func handleResponse<Type: Decodable>(
          data: Data?, error: Swift.Error?, response: URLResponse?) -> Result<Type, Error> {
          if let error = error {
