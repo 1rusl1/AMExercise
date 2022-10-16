@@ -32,17 +32,20 @@ enum PhotoRequestParameters: String {
 final class NetworkClient {
      private let urlSession = URLSession.shared
      private let apiKey = "22577733-edb14e0d0f3f9c1a039c57e48"
-     private let baseURL = "https://pixabay.com/api/"
+     private let baseURL = "pixabay.com"
      
      func fetchImages(page: Int, perPage: Int, completion: @escaping (Result<[Photo], Error>) -> Void) {
           guard let url = createURLWithParams(page: page, perPage: perPage) else {
                completion(.failure(.general))
                return
           }
-          urlSession.dataTask(with: url) { (jsonData, response, error) in
-               let result: Result<PhotoResponse, Error> = self.handleResponse(data: jsonData, error: error, response: response)
+          urlSession.dataTask(with: url) { jsonData, response, error in
+               let result: Result<PhotoResponse, Error> = self.handleResponse(
+                    data: jsonData,
+                    error: error,
+                    response: response
+               )
                completion(result.map { $0.hits })
-               
           }.resume()
      }
 
@@ -51,7 +54,7 @@ final class NetworkClient {
                completion(.failure(.general))
                return nil
           }
-          let task = urlSession.dataTask(with: url) { (jsonData, response, error) in
+          let task = urlSession.dataTask(with: url) { jsonData, response, error in
                if let error = error {
                     completion(.failure(.network(error: error, response: response)))
                }
@@ -68,7 +71,17 @@ final class NetworkClient {
      }
      
      private func createURLWithParams(page: Int, perPage: Int) -> URL? {
-          return URL(string: "\(baseURL)?key=\(apiKey)&image_type=photo&\(PhotoRequestParameters.page.rawValue)=\(page)&\(PhotoRequestParameters.perPage.rawValue)=\(perPage)")
+          var components = URLComponents()
+          components.scheme = "https"
+          components.host = baseURL
+          components.path = "/api"
+          components.queryItems = [
+               URLQueryItem(name: PhotoRequestParameters.key.rawValue, value: apiKey),
+               URLQueryItem(name: PhotoRequestParameters.imageType.rawValue, value: "photo"),
+               URLQueryItem(name: PhotoRequestParameters.page.rawValue, value: "\(page)"),
+               URLQueryItem(name: PhotoRequestParameters.perPage.rawValue, value: "\(perPage)")
+          ]
+          return components.url
      }
      
      private func handleResponse<Type: Decodable>(
