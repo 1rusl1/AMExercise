@@ -34,12 +34,12 @@ final class PhotoViewController: UIViewController {
     private var photos = [Photo]()
     
     private var currentPage = 1
-    
-    private var requestInProgress = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.navigationBar.prefersLargeTitles = true
+        title = "Photos"
         view.backgroundColor = .darkGray
         view.addSubview(collectionView)
         setupCollectionView()
@@ -63,28 +63,26 @@ final class PhotoViewController: UIViewController {
     }
     
     private func fetchImages() {
-        requestInProgress = true
-        networkClient.fetchImages(page: currentPage, perPage: 16) { [weak self] result in
+        networkClient.fetchImages(page: currentPage, perPage: Constants.photosPerPage) { [weak self] result in
             switch result {
-                case .success(let downLoadedPhotos):
-                    self?.photos.append(contentsOf: downLoadedPhotos)
+            case .success(let downLoadedPhotos):
+                self?.photos.append(contentsOf: downLoadedPhotos)
                 DispatchQueue.main.async {
                     self?.collectionView.reloadData()
-                    self?.requestInProgress = false
                 }
-                case .failure(let error):
+            case .failure(let error):
                 let alert = UIAlertController(
                     title: "Error",
                     message: error.localizedDescription, preferredStyle: .alert
                 )
-                self?.present(alert, animated: true)
-                self?.requestInProgress = false
+                DispatchQueue.main.async {
+                    self?.present(alert, animated: true)
+                }
             }
         }
     }
     
     private func fetchMoreImages() {
-        guard !requestInProgress else { return }
         currentPage += 1
         fetchImages()
     }
@@ -130,23 +128,20 @@ final class PhotoViewController: UIViewController {
 }
 
 extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return photos.count
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return Int(Constants.numberOfSections)
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let photo = photos[indexPath.row]
         showPhotoDetails(photo)
-        
         guard let cell = collectionView.cellForItem(at: indexPath) else { return }
         
-        let contentInset = cell.frame.origin.y + cell.frame.size.height - collectionView.frame.height / 2
-        
+        let contentInset = (cell.frame.origin.y + cell.frame.size.height) - (collectionView.frame.height / 2)
         if contentInset > 0 {
             collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
         }
@@ -159,13 +154,11 @@ extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSou
             return UICollectionViewCell()
         }
         cell.id = photo.id
-
         cell.configure(photo: photo)
         
         if indexPath.row == photos.count - 1 {
             fetchMoreImages()
         }
-        
         return cell
     }
 }
@@ -191,7 +184,6 @@ extension PhotoViewController: UICollectionViewDelegateFlowLayout {
 extension PhotoViewController: UIViewControllerTransitioningDelegate {
     func presentationController(forPresented presented: UIViewController, presenting: UIViewController?, source: UIViewController) -> UIPresentationController? {
         let controller = InfoPresentationController(presentedViewController: presented, presenting: presenting)
-        
         return controller
     }
 }
