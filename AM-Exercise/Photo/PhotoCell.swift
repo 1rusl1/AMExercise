@@ -9,6 +9,13 @@
 import Foundation
 import UIKit
 
+extension PhotoCell {
+    enum Constants {
+        static let imageViewInset: CGFloat = 5
+        static let sizeMultiplier: CGFloat = 5
+    }
+}
+
 class PhotoCell: UICollectionViewCell {
     var id = 0
     
@@ -73,15 +80,15 @@ class PhotoCell: UICollectionViewCell {
     
     private func makeConstraints() {
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
-            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
+            imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constants.imageViewInset),
+            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.imageViewInset),
+            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Constants.imageViewInset),
             infoStackView.topAnchor.constraint(equalTo: contentView.topAnchor),
             infoStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            infoStackView.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 5),
-            imageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.5),
-            authorLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
-            idLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5)
+            infoStackView.leadingAnchor.constraint(equalTo: imageView.trailingAnchor,constant: Constants.imageViewInset),
+            imageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: Constants.sizeMultiplier),
+            authorLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: Constants.sizeMultiplier),
+            idLabel.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: Constants.sizeMultiplier)
         ])
     }
     
