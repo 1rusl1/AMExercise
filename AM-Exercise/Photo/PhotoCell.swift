@@ -12,7 +12,7 @@ import UIKit
 extension PhotoCell {
     enum Constants {
         static let imageViewInset: CGFloat = 5
-        static let sizeMultiplier: CGFloat = 5
+        static let sizeMultiplier: CGFloat = 0.5
     }
 }
 
