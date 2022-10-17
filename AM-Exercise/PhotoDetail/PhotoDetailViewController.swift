@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 
 final class PhotoDetailViewController: UIViewController {
-    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Detail"

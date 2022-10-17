@@ -59,7 +59,6 @@ final class NetworkClient {
                     completion(.failure(.network(error: error, response: response)))
                }
                if let image = jsonData.flatMap(UIImage.init(data:)) {
-                    
                     completion(.success(image))
                } else {
                     let decodingError = NSError(domain: "com.exercise.AM-Exercise", code: -1, userInfo: nil)
